@@ -27,11 +27,11 @@ class ClienteController extends Controller
 
     public function store(Request $request)
     {
-        
+
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'telefone' => 'required|string|max:15',
-            'cpf' => 'required|string|size:14|unique:clientes,cpf',
+            'cpf' => 'required|string|max:14|unique:clientes,cpf',
             'email' => 'required|email|unique:clientes,email',
             'cidade' => 'required|string|max:255',
             'cep' => 'required|string|size:8',
@@ -41,35 +41,29 @@ class ClienteController extends Controller
             'complemento' => 'nullable|string|max:255',
         ]);
 
-        try {
-            
-            $endereco = Endereco::create([
-                'cidade' => $validated['cidade'],
-                'cep' => $validated['cep'],
-                'rua' => $validated['rua'],
-                'numero' => $validated['numero'],
-                'bairro' => $validated['bairro'],
-                'complemento' => $validated['complemento'] ?? null, // Opcional
-            ]);
 
-            
-            Cliente::create([
-                'nome' => $validated['nome'],
-                'telefone' => $validated['telefone'],
-                'cpf' => $validated['cpf'],
-                'email' => $validated['email'],
-                'endereco_id' => $endereco->id, // Vinculação
-            ]);
+        $endereco = Endereco::create([
+            'cidade' => $validated['cidade'],
+            'cep' => $validated['cep'],
+            'rua' => $validated['rua'],
+            'numero' => $validated['numero'],
+            'bairro' => $validated['bairro'],
+            'complemento' => $validated['complemento'] ?? null, 
+        ]);
 
-            
-            return redirect()->route('clientes.index')->with('success', 'Cliente criado com sucesso!');
-        } catch (\Exception $e) {
-            
-            \Log::error('Erro ao salvar o cliente: ' . $e->getMessage());
-            
-            return redirect()->back()->withErrors('Erro ao salvar o cliente: ' . $e->getMessage());
-        }
+
+        Cliente::create([
+            'nome' => $validated['nome'],
+            'telefone' => $validated['telefone'],
+            'cpf' => $validated['cpf'],
+            'email' => $validated['email'],
+            'endereco_id' => $endereco->id, 
+        ]);
+
+
+        return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado com sucesso!');
     }
+
 
 
     public function show($id)
