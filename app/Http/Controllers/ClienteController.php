@@ -11,11 +11,23 @@ use App\Http\Controllers\Controller;
 class ClienteController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = Cliente::with('endereco')->get();
+        $query = Cliente::query();
+
+        
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('cpf', 'LIKE', "%$search%")
+                ->orWhere('telefone', 'LIKE', "%$search%")
+                ->orWhere('email', 'LIKE', "%$search%");
+        }
+
+        $clientes = $query->get();
+
         return view('clientes.index', compact('clientes'));
     }
+
 
 
 
@@ -48,7 +60,7 @@ class ClienteController extends Controller
             'rua' => $validated['rua'],
             'numero' => $validated['numero'],
             'bairro' => $validated['bairro'],
-            'complemento' => $validated['complemento'] ?? null, 
+            'complemento' => $validated['complemento'] ?? null,
         ]);
 
 
@@ -57,7 +69,7 @@ class ClienteController extends Controller
             'telefone' => $validated['telefone'],
             'cpf' => $validated['cpf'],
             'email' => $validated['email'],
-            'endereco_id' => $endereco->id, 
+            'endereco_id' => $endereco->id,
         ]);
 
 
